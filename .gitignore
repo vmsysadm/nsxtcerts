@@ -1,0 +1,58 @@
+# Ignore node_modules directory
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore build directories
+dist/
+build/
+
+# Ignore environment variable files
+.env
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Credentials and Environment
+.env*
+*.pem
+*.key
+private.key
+*.cer
+*.crt
+*.csr
+*.conf
+/certs/*
+!certs/.gitkeep
+nsx-cert-info.txt
+
+# IDE
+.vscode/
+.idea/

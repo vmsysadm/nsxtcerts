@@ -1,0 +1,71 @@
+
+Add a New Certificate
+Adds a new private-public certificate or a chain of certificates (CAs) and,
+optionally, a private key that can be applied to one of the user-facing
+components (appliance management or edge). The certificate and the key
+should be stored in PEM format. If no private key is provided, the
+certificate is used as a client certificate in the trust store.
+A private key can be uploaded for a CA certificate only if the "purpose"
+parameter is set to "signing-ca".
+Request:
+Method:
+POST
+URI Path(s):
+/api/v1/trust-management/certificates?action=import
+Request Headers:
+n/a
+Query Parameters:
+n/a
+Request Body:
+TrustObjectData+
+
+Example Request:
+POST https://<nsx-mgr>/api/v1/trust-management/certificates?action=import
+{
+  "pem_encoded": "-----BEGIN CERTIFICATE----------END CERTIFICATE-----\n-----BEGIN CERTIFICATE----------END CERTIFICATE-----\n",
+  "private_key": "-----BEGIN RSA PRIVATE KEY----------END RSA PRIVATE KEY-----\n",
+  "passphrase": "1234"
+}
+Successful Response:
+Response Code:
+201 Created
+Response Headers:
+Content-type: application/json
+Response Body:
+CertificateList+
+
+Example Response:
+{
+  "results": [
+    {
+      "id": "506d00d6-bfd5-4ebe-8b7f-0236f8de4792",
+      "display_name": "506d00d6-bfd5-4ebe-8b7f-0236f8de4792",
+      "resource_type": "certificate_signed",
+      "pem_encoded": "-----BEGIN CERTIFICATE----------END CERTIFICATE-----\n-----BEGIN CERTIFICATE----------END CERTIFICATE-----\n",
+      "has_private_key": true,
+      "used_by": [],
+      "_system_owned": false,
+      "_last_modified_time": 1413369285811,
+      "_create_time": 1413369285811,
+      "_create_user": "admin",
+      "_last_modified_user": "admin",
+      "_protection": "NOT_PROTECTED",
+      "_revision": 0
+    }
+  ]
+}
+Required Permissions:
+crud
+Feature:
+trust_certificates
+Additional Errors:
+
+    301 Moved Permanently
+    307 Temporary Redirect
+    400 Bad Request
+    403 Forbidden
+    409 Conflict
+    412 Precondition Failed
+    500 Internal Server Error
+    503 Service Unavailable
+

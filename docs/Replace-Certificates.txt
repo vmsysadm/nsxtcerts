@@ -1,0 +1,12 @@
+https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/administration/GUID-50C36862-A29D-48FA-8CE7-697E64E10E37.html
+
+Replace Certificates
+(Optional) To replace the Local Manager and Global Manager Principal Identity certificates for NSX Federation use the following API call. The entire NSX Manager cluster (Local Manager and Global Manager) requires a single PI certificate. 
+
+Certificates for NSX Federation
+https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/administration/GUID-3DD19193-770C-47F3-A0F3-7B7703F274C8.html#GUID-3DD19193-770C-47F3-A0F3-7B7703F274C8
+
+Import a Self-signed or CA-signed Certificate
+https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/administration/GUID-BC3BA708-1A79-4741-BF16-968C74565E39.html#GUID-BC3BA708-1A79-4741-BF16-968C74565E39
+
+

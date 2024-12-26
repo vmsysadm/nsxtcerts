@@ -21,7 +21,7 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env_nsx"))
 @click.option("--cert-name", required=True, help="The name of the certificate.")
 @click.option("--cert-file", required=True, help="The path to the certificate file (PEM format).")
 @click.option("--key-file", default="private.key", help="The path to the private key file (PEM format).")
-@click.option("--key-pass", default="", help="The passphrase for the private key file (if any).")
+@click.option("--key-pass",  help="The passphrase for the private key file (if any).")
 def main(cert_name, cert_file, key_file, key_pass):
     """
     Imports a certificate and private key to NSX-T manager.
@@ -49,11 +49,13 @@ def main(cert_name, cert_file, key_file, key_pass):
         "Content-Type": "application/json",
         "Accept": "application/json"
     }
+    if key_pass is None:
+        key_pass = nsx_password
     payload = {
         "display_name": cert_name,
         "pem_encoded": cert_content,
         "private_key": key_content,
-        "private_key_passphrase": key_pass
+        "passphrase": key_pass
     }
     
     try:

@@ -100,6 +100,36 @@ def format_expiration_date(cert_pem, debug_enabled):
             return "Invalid Date"
     return "N/A"
 
+def get_nsx_node_name(manager_address, username, password, node_id, debug_enabled, verify_ssl=False):
+    """Retrieves the node name from NSX-T Manager using the node ID."""
+    url = f"https://{manager_address}/api/v1/cluster/nodes/{node_id}"
+    auth = (username, password)
+    headers = {"Accept": "application/json"}
+    try:
+        if debug_enabled:
+            print(f"[bold blue]DEBUG:[/bold blue] GET {url}")
+        response = requests.get(url, auth=auth, headers=headers, verify=verify_ssl)
+        response.raise_for_status()
+        try:
+            node_data = response.json()
+            if debug_enabled:
+                print(f"[bold blue]DEBUG:[/bold blue] Response: {node_data}")
+            return node_data.get("display_name", "N/A")
+        except json.JSONDecodeError:
+            raise Exception(f"Invalid JSON response from NSX Manager: {response.text}")
+    except requests.exceptions.RequestException as e:
+        if isinstance(e, requests.exceptions.HTTPError):
+            if e.response.status_code == 404:
+                print(f"[bold red]Node Not Found:[/bold red] Node ID {node_id} not found in NSX.")
+                return "N/A"
+            print(
+                f"[bold red]HTTP Error:[/bold red] {e.response.status_code} - {e.response.reason}"
+            )
+            print(f"[bold red]Response Body:[/bold red] {e.response.text}")
+        else:
+            print(f"[bold red]Request Exception:[/bold red] {e}")
+        return "N/A"
+
 
 def display_certificate_details(certificates, manager_address, username, password, debug_enabled):
     """Displays certificate details in a line-by-line format."""
@@ -124,12 +154,18 @@ def display_certificate_details(certificates, manager_address, username, passwor
             print(f"  [blue]Service Types:[/blue] {', '.join(service_types)}")
         else:
              print(f"  [blue]Service Types:[/blue] [bold red]NOT_USED[/bold red]")
+        if "API" in service_types and used_by_data:
+            for item in used_by_data:
+                if "node_id" in item:
+                    node_id = item["node_id"]
+                    node_name = get_nsx_node_name(manager_address, username, password, node_id, debug_enabled)
+                    print(f"  [blue]  Node ID:[/blue] {node_id} ([italic]{node_name}[/italic])")
+                    break
         print(f"  [yellow]Expiration Date:[/yellow] {expiration_date}")
         if debug_enabled:
             print(f"  [bold blue]DEBUG:[/bold blue] Used By: {used_by_data}")
         print("-" * 40)
     return cert_ids
-
 
 def apply_certificate_to_services(manager_address, username, password, cert_id, service_types, debug_enabled, old_cert_used_by, verify_ssl=False):
     """Applies the new certificate to the specified service types."""

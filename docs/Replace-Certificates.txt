@@ -1,12 +1,82 @@
 https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/administration/GUID-50C36862-A29D-48FA-8CE7-697E64E10E37.html
 
-Replace Certificates
-(Optional) To replace the Local Manager and Global Manager Principal Identity certificates for NSX Federation use the following API call. The entire NSX Manager cluster (Local Manager and Global Manager) requires a single PI certificate. 
-
+== additional documentation ==
 Certificates for NSX Federation
 https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/administration/GUID-3DD19193-770C-47F3-A0F3-7B7703F274C8.html#GUID-3DD19193-770C-47F3-A0F3-7B7703F274C8
 
 Import a Self-signed or CA-signed Certificate
 https://docs.vmware.com/en/VMware-NSX-T-Data-Center/3.2/administration/GUID-BC3BA708-1A79-4741-BF16-968C74565E39.html#GUID-BC3BA708-1A79-4741-BF16-968C74565E39
+====
 
 
+
+After you install NSX-T Data Center, the manager nodes and cluster have self-signed certificates. Replace the self-signed certificates with a CA-signed certificate and use a single common CA-signed certificate with a SAN (Subject Alternative Name) that matches all the nodes and the VIP for the cluster. You can run only one certificate replacement operation at a time.
+
+If you are using NSX Federation, you can replace the GM API certificates, GM cluster certificate, LM API certificates, and LM cluster certificates using the following APIs.
+
+When you replace the GM or LM certificate, the site-manager sends these to all the other federated sites, so communication remains intact.
+The cipher suite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 can now be used or replaced for communication between:
+
+    the NSX-T Data Center nodes with in the cluster.
+    within the NSX Federation.
+    NSX Manager to NSX Edge.
+    NSX Manager to NSX-T Data Center agent.
+    the NSX Manager REST API communication (external).
+
+You can also replace the platform Principal Identity certificates auto-created for the Global Manager and Local Manager appliances. See Certificates for NSX Federation for details on self-signed certificates auto-configured for NSX Federation.
+Note: For Cloud Service Manager, it is not possible to replace the HTTP certificate in an NSX-T Data Center environment.
+Prerequisites
+
+    Verify that a certificate is available in the NSX Manager. Note that on a standby Global Manager the UI import operation is deactivated. For details on the import REST API command for a standby Global Manager, refer to Import a Self-signed or CA-signed Certificate.
+    The server certificate must contain the Basic Constraints extension basicConstraints = cA:FALSE.
+    Verify that the certificate is valid by making the following API call:
+
+    GET https://<nsx-mgr>/api/v1/trust-management/certificates/<cert-id>?action=validate
+    Note: Do not use automated scripts to replace multiple certificates at the same time. Errors might occur.
+
+Procedure
+
+    With admin privileges, log in to NSX Manager.
+    Select System > Certificates.
+    In the ID column, select the ID of the certificate you want to use and copy the certificate ID from the pop-up window.
+    Make sure that when this certificate was imported, the option Service Certificate was set to No.
+
+    Note: The certificate chain must be in the industry standard order of 'certificate - intermediate - root.'
+    To replace the certificate of a manager node, use the API call:
+
+POST /api/v1/trust-management/certificates/<cert-id>?action=apply_certificate&service_type=API&node_id=<node-id>
+
+For example:
+POST https://<nsx-mgr>/api/v1/trust-management/certificates/77c5dc5c-6ba5-4e74-a801-c27dc09be76b?action=apply_certificate&service_type=API&node_id=e61c7537-3090-4149-b2b6-19915c20504f
+
+For more information about the API, see the NSX-T Data Center API Guide.
+To replace the certificate of the manager cluster VIP, use the API call:
+
+POST /api/v1/trust-management/certificates/<cert-id>?action=apply_certificate&service_type=MGMT_CLUSTER
+
+For example:
+POST https://<nsx-mgr>/api/v1/trust-management/certificates/d60c6a07-6e59-4873-8edb-339bf75711?action=apply_certificate&service_type=MGMT_CLUSTER
+
+Note: The certificate chain must be in the industry standard order of certificate - intermediate - root.
+
+For more information about the API, see the NSX-T Data Center API Guide. This step is not necessary if you did not configure VIP.
+(Optional) To replace the Local Manager and Global Manager Principal Identity certificates for NSX Federation use the following API call. The entire NSX Manager cluster (Local Manager and Global Manager) requires a single PI certificate.
+Note: Do not use this procedure to replace a Principal Identity certificate not related to NSX Federation. To replace a Principal Identity certificate, refer to Add a Role Assignment or Principal Identity for instructions.
+
+POST https://<nsx-mgr>/api/v1/trust-management/certificates/<cert-id>?action=apply_certificate&service_type=<service-type>
+
+For example:
+
+POST https://<local-mgr>/api/v1/trust-management/certificates/77c5dc5c-6ba5-4e74-a801-c27dc09be76b?action=apply_certificate&service_type=LOCAL_MANAGER
+
+Or
+
+POST https://<global-mgr>/api/v1/trust-management/certificates/77c5dc5c-6ba5-4e74-a801-c27dc09be76b?action=apply_certificate&service_type=GLOBAL_MANAGER
+
+To replace APH-APR certificates use the API call:
+
+POST https://<nsx-mgr>/api/v1/trust-management/certificates/<cert-id>?action=apply_certificate&service_type=APH
+
+For example:
+
+POST https://<nsx-mgr>/api/v1/trust-management/certificates/77c5dc5c-6ba5-4e74-a801-c27dc09be79b?action=apply_certificate&service_type=APH
